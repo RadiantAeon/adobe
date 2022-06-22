@@ -24,7 +24,7 @@ function setProvider(provider) {
 }
 
 function initialize(authority) {
-    return adobe.rpc.initialize(stateBump, {
+    return adobe.rpc.initialize({
         accounts: {
             authority: authority.publicKey,
             state: stateKey,
@@ -38,7 +38,7 @@ function initialize(authority) {
 function addPool(authority, mint) {
     let [poolKey, poolTokenKey, voucherMintKey, poolBump] = getMintKeys(mint);
 
-    return adobe.rpc.addPool(poolBump, {
+    return adobe.rpc.addPool({
         accounts: {
             authority: authority.publicKey,
             state: stateKey,

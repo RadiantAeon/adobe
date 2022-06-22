@@ -12,8 +12,8 @@ const ASSOCIATED_TOKEN_PROGRAM_ID = spl.ASSOCIATED_TOKEN_PROGRAM_ID;
 const TXN_OPTS = {commitment: "processed", preflightCommitment: "processed", skipPreflight: true};
 const TOKEN_DECIMALS = 6;
 
-anchor.setProvider(anchor.Provider.local(null, TXN_OPTS));
-const provider = anchor.getProvider();
+const provider = anchor.AnchorProvider.local();
+anchor.setProvider(provider);
 api.setProvider(provider);
 
 const adobe = anchor.workspace.Adobe;
@@ -114,7 +114,7 @@ describe("adobe flash loan program", () => {
         txn.add(repayIxn);
 
         let balBefore = await poolBalance(tokenMint);
-        await provider.send(txn);
+        await provider.connection.sendTransaction(txn, [wallet.payer]);
         let balAfter = await poolBalance(tokenMint);
         assert.equal(balAfter, balBefore, "program token balance unchanged");
 
@@ -123,7 +123,7 @@ describe("adobe flash loan program", () => {
         txn.add(borrowIxn);
 
         balBefore = await poolBalance(tokenMint);
-        await assert.rejects(async () => provider.send(txn), "borrow without repay fails");
+        await assert.rejects(provider.connection.sendTransaction(txn, [wallet.payer]), "borrow without repay fails");
         balAfter = await poolBalance(tokenMint);
         assert.equal(balAfter, balBefore, "program token balance unchanged");
 
@@ -134,7 +134,7 @@ describe("adobe flash loan program", () => {
         txn.add(repayIxn);
 
         balBefore = await poolBalance(tokenMint);
-        await assert.rejects(provider.send(txn), "borrow more than repay fails");
+        await assert.rejects(provider.connection.sendTransaction(txn, [wallet.payer]), "borrow more than repay fails");
         balAfter = await poolBalance(tokenMint);
         assert.equal(balAfter, balBefore, "program token balance unchanged");
 
@@ -145,7 +145,7 @@ describe("adobe flash loan program", () => {
         txn.add(repayIxn);
 
         balBefore = await poolBalance(tokenMint);
-        await assert.rejects(provider.send(txn), "borrow more than available fails");
+        await assert.rejects(provider.connection.sendTransaction(txn, [wallet.payer]), "borrow more than available fails");
         balAfter = await poolBalance(tokenMint);
         assert.equal(balAfter, balBefore, "program token balance unchanged");
 
@@ -156,7 +156,7 @@ describe("adobe flash loan program", () => {
         txn.add(repayIxn);
 
         balBefore = await poolBalance(tokenMint);
-        await assert.rejects(provider.send(txn), "multiple borrow fails");
+        await assert.rejects(provider.connection.sendTransaction(txn, [wallet.payer]), "multiple borrow fails");
         balAfter = await poolBalance(tokenMint);
         assert.equal(balAfter, balBefore, "program token balance unchanged");
 
@@ -181,7 +181,7 @@ describe("adobe flash loan program", () => {
         txn.add(repayIxn);
 
         balBefore = await poolBalance(tokenMint);
-        await assert.rejects(provider.send(txn), "borrow and cpi fails");
+        await assert.rejects(provider.connection.sendTransaction(txn, [wallet.payer]), "borrow and cpi fails");
         balAfter = await poolBalance(tokenMint);
         assert.equal(balAfter, balBefore, "program token balance unchanged");
 
@@ -191,7 +191,7 @@ describe("adobe flash loan program", () => {
         txn.add(repayIxn);
 
         balBefore = await poolBalance(tokenMint);
-        await assert.rejects(provider.send(txn), "cpi and borrow fails");
+        await assert.rejects(provider.connection.sendTransaction(txn, [wallet.payer]), "cpi and borrow fails");
         balAfter = await poolBalance(tokenMint);
         assert.equal(balAfter, balBefore, "program token balance unchanged");
 
@@ -201,7 +201,7 @@ describe("adobe flash loan program", () => {
         txn.add(repayIxn);
 
         balBefore = await poolBalance(tokenMint);
-        await assert.rejects(provider.send(txn), "cpi and cpi fails");
+        await assert.rejects(provider.connection.sendTransaction(txn, [wallet.payer]), "cpi and cpi fails");
         balAfter = await poolBalance(tokenMint);
         assert.equal(balAfter, balBefore, "program token balance unchanged");
 
@@ -224,7 +224,7 @@ describe("adobe flash loan program", () => {
         txn.add(repayIxn);
 
         balBefore = await poolBalance(tokenMint);
-        await assert.rejects(provider.send(txn), "cpi double borrow fails");
+        await assert.rejects(provider.connection.sendTransaction(txn, [wallet.payer]), "cpi double borrow fails");
         balAfter = await poolBalance(tokenMint);
         assert.equal(balAfter, balBefore, "program token balance unchanged");
 
@@ -241,7 +241,7 @@ describe("adobe flash loan program", () => {
 
         let p1BalBefore = await poolBalance(oldTokenMint);
         let p2BalBefore = await poolBalance(tokenMint);
-        await assert.rejects(provider.send(txn), "repay different token fails");
+        await assert.rejects(provider.connection.sendTransaction(txn, [wallet.payer]), "repay different token fails");
         let p1BalAfter = await poolBalance(oldTokenMint);
         let p2BalAfter = await poolBalance(tokenMint);
         assert.equal(p1BalAfter, p1BalBefore, "program first token balance unchanged");
@@ -281,7 +281,7 @@ describe("adobe flash loan program", () => {
         txn.add(repayIxn);
 
         balBefore = await poolBalance(tokenMint);
-        await assert.rejects(provider.send(txn), "cpi dummy repay fails");
+        await assert.rejects(provider.connection.sendTransaction(txn, [wallet.payer]), "cpi dummy repay fails");
         balAfter = await poolBalance(tokenMint);
         assert.equal(balAfter, balBefore, "program token balance unchanged");
     });
